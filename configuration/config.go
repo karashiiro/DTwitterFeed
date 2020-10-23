@@ -8,9 +8,9 @@ import (
 
 // Subscription represents a subscription to a single account.
 type Subscription struct {
-	UserID      string `json:"userID"`
-	ChannelID   string `json:"channelID"`
-	LastTweetID string `json:"lastTweetID"`
+	UserID        string `json:"userID"`
+	ChannelID     string `json:"channelID"`
+	LastTweetTime int64  `json:"lastTweetTime"`
 }
 
 // Configuration represents the program configuration schema.

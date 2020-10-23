@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,15 +31,15 @@ func ServeTweets(client *discordgo.Session, config *configuration.Configuration)
 }
 
 func getTweets(sub *configuration.Subscription, tweets chan *twitterscraper.Result) {
-	for tweet := range twitterscraper.GetTweets(context.Background(), sub.UserID, 1) {
-		if sub.LastTweetID == tweet.ID {
+	for tweet := range twitterscraper.GetTweets(context.Background(), sub.UserID, 3) {
+		if sub.LastTweetTime >= getTweetTimestamp(tweet.ID).Unix() {
 			break
 		}
 
 		log.Println("Got tweet:", tweet.Text)
 
 		tweets <- tweet
-		sub.LastTweetID = tweet.ID
+		sub.LastTweetTime = getTweetTimestamp(tweet.ID).Unix()
 	}
 
 	close(tweets)
@@ -80,4 +81,16 @@ func postTweets(client *discordgo.Session, config *configuration.Configuration, 
 			log.Println(err)
 		}
 	}
+}
+
+func getTweetTimestamp(snowflakeStr string) time.Time {
+	snowflake, err := strconv.Atoi(snowflakeStr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	offset := 1288834974657
+	timestamp := (snowflake >> 22) + offset
+	t := time.Unix(int64(timestamp/1000), 0)
+	return t
 }

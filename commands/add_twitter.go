@@ -31,9 +31,9 @@ func AddTwitter(client *discordgo.Session, message *discordgo.MessageCreate, arg
 	}
 
 	config.Subscriptions = append(config.Subscriptions, configuration.Subscription{
-		UserID:      userID,
-		ChannelID:   channelID,
-		LastTweetID: "",
+		UserID:        userID,
+		ChannelID:     channelID,
+		LastTweetTime: 0,
 	})
 
 	config.Save()
