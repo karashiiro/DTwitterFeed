@@ -74,7 +74,7 @@ func postTweets(client *discordgo.Session, config *configuration.Configuration, 
 		embed := &discordgo.MessageEmbed{
 			Title:       "Translated Text",
 			Description: translatedText,
-			Color:       0x1DA1F2,
+			Color:       0x1DA1F2, // Twitter Blue
 		}
 		if _, err := client.ChannelMessageSendEmbed(sub.ChannelID, embed); err != nil {
 			log.Println(err)
