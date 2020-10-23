@@ -1,5 +1,5 @@
 # DTwitterFeed
-A Discord bot that posts to a channel when a Twitter account posts.
+A Discord bot that follows Twitter account posts.
 
 ## Setup
 Install the dependencies, build it with `go build`, and set the environment variable `DTWITTERFEED_BOT_TOKEN` to your Discord bot token.
