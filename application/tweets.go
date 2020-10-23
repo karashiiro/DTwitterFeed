@@ -25,7 +25,7 @@ func ServeTweets(client *discordgo.Session, config *configuration.Configuration)
 }
 
 func getTweets(sub *configuration.Subscription, tweets chan *twitterscraper.Result) {
-	for tweet := range twitterscraper.GetTweets(context.Background(), sub.UserID, 1) {
+	for tweet := range twitterscraper.GetTweets(context.Background(), sub.UserID, 5) {
 		if sub.LastTweetID == tweet.ID {
 			break
 		}
