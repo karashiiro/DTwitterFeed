@@ -15,9 +15,10 @@ type Subscription struct {
 
 // Configuration represents the program configuration schema.
 type Configuration struct {
-	Subscriptions []Subscription `json:"subscriptions"`
-	ModRoles      []string       `json:"modRoles"`
-	Prefix        string         `json:"prefix"`
+	Subscriptions  []Subscription `json:"subscriptions"`
+	ModRoles       []string       `json:"modRoles"`
+	Prefix         string         `json:"prefix"`
+	NativeLanguage string         `json:"nativeLanguage"`
 }
 
 // Save saves the configuration file.
@@ -55,9 +56,10 @@ func LoadConfig() *Configuration {
 
 func makeConfigDefaults() *Configuration {
 	config := &Configuration{
-		Subscriptions: make([]Subscription, 0),
-		ModRoles:      make([]string, 0),
-		Prefix:        "^",
+		Subscriptions:  make([]Subscription, 0),
+		ModRoles:       make([]string, 0),
+		Prefix:         "^",
+		NativeLanguage: "en",
 	}
 	config.Save()
 	return config

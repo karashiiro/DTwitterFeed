@@ -3,7 +3,12 @@ package application
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
+
+	"github.com/bregydoc/gtranslate"
+
+	"github.com/taruti/langdetect"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/karashiiro/DTwitterFeed/configuration"
@@ -16,7 +21,7 @@ func ServeTweets(client *discordgo.Session, config *configuration.Configuration)
 		for i := range config.Subscriptions {
 			tweets := make(chan *twitterscraper.Result)
 			go getTweets(&config.Subscriptions[i], tweets)
-			postTweets(client, &config.Subscriptions[i], tweets)
+			postTweets(client, config, &config.Subscriptions[i], tweets)
 		}
 
 		config.Save()
@@ -25,7 +30,7 @@ func ServeTweets(client *discordgo.Session, config *configuration.Configuration)
 }
 
 func getTweets(sub *configuration.Subscription, tweets chan *twitterscraper.Result) {
-	for tweet := range twitterscraper.GetTweets(context.Background(), sub.UserID, 5) {
+	for tweet := range twitterscraper.GetTweets(context.Background(), sub.UserID, 1) {
 		if sub.LastTweetID == tweet.ID {
 			break
 		}
@@ -39,14 +44,39 @@ func getTweets(sub *configuration.Subscription, tweets chan *twitterscraper.Resu
 	close(tweets)
 }
 
-func postTweets(client *discordgo.Session, sub *configuration.Subscription, tweets chan *twitterscraper.Result) {
+func postTweets(client *discordgo.Session, config *configuration.Configuration, sub *configuration.Subscription, tweets chan *twitterscraper.Result) {
 	for {
 		tweet, ok := <-tweets
 		if !ok {
 			break
 		}
 
+		// Send the plain Tweet
 		if _, err := client.ChannelMessageSend(sub.ChannelID, tweet.PermanentURL); err != nil {
+			log.Println(err)
+			return
+		}
+
+		lang := langdetect.DetectLanguage([]byte(tweet.Text), "ISO88591").String()
+		if lang == config.NativeLanguage || config.NativeLanguage == "" {
+			return
+		}
+
+		// Make and send the translated Tweet
+		translatedText, err := gtranslate.TranslateWithParams(tweet.Text, gtranslate.TranslationParams{From: lang, To: config.NativeLanguage})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		translatedText = strings.Replace(translatedText, "…", "", -1) // Google Translate sticks an ellipsis at the end of links for some reason, breaking them
+
+		embed := &discordgo.MessageEmbed{
+			Title:       "Translated Text",
+			Description: translatedText,
+			Color:       0x1DA1F2,
+		}
+		if _, err := client.ChannelMessageSendEmbed(sub.ChannelID, embed); err != nil {
 			log.Println(err)
 		}
 	}

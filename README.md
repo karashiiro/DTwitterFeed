@@ -1,5 +1,5 @@
 # DTwitterFeed
-A Discord bot that follows Twitter account posts.
+A Discord bot that reposts tweets into text channels, additionally translating them if necessary.
 
 ## Setup
 Install the dependencies, build it with `go build`, and set the environment variable `DTWITTERFEED_BOT_TOKEN` to your Discord bot token.
